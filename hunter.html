@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hunter was here</title>
+  <style>
+    /* Basic reset */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      background:#000;
+      color:#c8ffea;
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+    }
+
+    /* Matrix-ish background */
+    .matrix{
+      position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.85));
+    }
+
+    .grain{
+      position:fixed;inset:0;mix-blend-mode:screen;opacity:.06;z-index:2;pointer-events:none;background-image:linear-gradient(transparent 50%, rgba(255,255,255,0.02) 50%);
+      background-size:100% 2px;
+    }
+
+    /* Card */
+    .card{
+      position:relative;z-index:3;width:min(880px,94%);padding:36px;border-radius:12px;
+      background:linear-gradient(135deg, rgba(0,0,0,0.45), rgba(10,10,10,0.6));
+      box-shadow:0 10px 40px rgba(0,0,0,0.6), 0 0 80px rgba(2,255,180,0.02) inset;
+      border:1px solid rgba(0,255,170,0.08);
+      display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;
+      backdrop-filter: blur(6px);
+    }
+
+    .left{
+      padding-right:10px;
+    }
+
+    h1{
+      font-size:48px;letter-spacing:2px;margin-bottom:6px;
+      color:#7ef0c9;text-shadow:0 2px 18px rgba(0,255,170,0.08);
+    }
+
+    .tagline{
+      color:#9fffe0;opacity:.9;margin-bottom:14px;font-size:16px
+    }
+
+    .badge{
+      display:inline-block;padding:8px 12px;border-radius:999px;font-weight:700;background:rgba(0,0,0,0.25);
+      border:1px solid rgba(126,240,201,0.12);
+      box-shadow:0 6px 18px rgba(0,255,170,0.02);
+      font-size:13px;color:#bfffe8
+    }
+
+    /* Glitch text for the small creative sentence */
+    .glitch{
+      position:relative;display:inline-block;font-weight:800;font-size:22px;margin-top:6px;
+      color:#fff;letter-spacing:1px
+    }
+    .glitch::before, .glitch::after{
+      content:attr(data-text);position:absolute;left:0;top:0;opacity:.85;
+    }
+    .glitch::before{color:#00f5a5;transform:translateX(6px);mix-blend-mode:screen;clip-path:polygon(0 0,100% 0,100% 45%,0 45%);animation:gl1 2.5s infinite linear}
+    .glitch::after{color:#ff2d8a;transform:translateX(-6px);mix-blend-mode:screen;clip-path:polygon(0 55%,100% 55%,100% 100%,0 100%);animation:gl2 3s infinite linear}
+
+    @keyframes gl1{0%,100%{transform:translateX(6px) translateY(0)}50%{transform:translateX(-8px) translateY(2px)}}
+    @keyframes gl2{0%,100%{transform:translateX(-6px) translateY(0)}60%{transform:translateX(10px) translateY(-2px)}}
+
+    /* Neon corner */
+    .logo{
+      width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg, rgba(4,4,4,0.6), rgba(10,10,10,0.4));border:1px solid rgba(0,255,170,0.12);
+      box-shadow:0 6px 24px rgba(0,255,170,0.06);
+      font-weight:900;font-size:20px;color:#bfffe8
+    }
+
+    /* floating terminal-like area */
+    .term{
+      margin-top:8px;padding:14px;border-radius:8px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.03);font-family:monospace;font-size:14px;color:#c8ffd9;
+    }
+
+    .cursor{display:inline-block;width:10px;height:18px;background:#7ef0c9;vertical-align:middle;margin-inline-start:8px;animation:blink 1s steps(2) infinite}
+    @keyframes blink{50%{opacity:0}}
+
+    /* small responsive tweaks */
+    @media (max-width:520px){h1{font-size:30px}.card{padding:20px}}
+
+    /* floating matrix columns (JS will create) */
+    .col{position:fixed;top:-120%;left:0;font-family:monospace;white-space:nowrap;opacity:0.12;pointer-events:none;z-index:1;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="matrix" id="matrix"></div>
+  <div class="grain"></div>
+
+  <div class="card" role="main">
+    <div class="left">
+      <h1>0xHunter was here</h1>
+      <div class="tagline">I got Subdomain Takeover at NASA</div>
+      <div class="badge">Hacker  • NASA</div>
+
+      <p class="term" id="term">$ echo "<span class="glitch" data-text="Hunter was here">I hacked NASA</span>"<span class="cursor" aria-hidden="true"></span></p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div class="logo">Nasa</div>
+      <small style="opacity:.7;color:#9fffe0"> Subdomain Takeover at NASA </small>
+    </div>
+  </div>
+
+  <script>
+    // Create matrix-like columns with random binary/hex strings
+    const chars = '01ABCDEF7890';
+    const matrix = document.getElementById('matrix');
+    const cols = Math.floor(window.innerWidth / 14);
+
+    for(let i=0;i<cols;i++){
+      const el = document.createElement('div');
+      el.className='col';
+      el.style.left = (i*14) + 'px';
+      el.style.opacity = (Math.random()*0.12 + 0.02).toFixed(2);
+      el.style.fontSize = (8 + Math.random()*10) + 'px';
+      el.dataset.speed = 1 + Math.random()*2;
+      matrix.appendChild(el);
+    }
+
+    function randStr(len){
+      let s='';
+      for(let i=0;i<len;i++) s+=chars.charAt(Math.floor(Math.random()*chars.length));
+      return s;
+    }
+
+    function tick(){
+      document.querySelectorAll('.col').forEach((c,idx)=>{
+        const h = Math.floor(window.innerHeight/12);
+        c.style.top = ( (parseFloat(c.style.top||'-120%') || -window.innerHeight) + c.dataset.speed*6 ) + 'px';
+        if(parseFloat(c.style.top) > window.innerHeight) c.style.top = -h*12 + 'px';
+        c.textContent = randStr(Math.floor(window.innerHeight/20));
+      });
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    // Simple type effect for the terminal line
+    (function(){
+      const el = document.getElementById('term');
+      const text = 'echo "I hacked NASA"';
+      el.textContent = '$ ';
+      let i=0;
+      function type(){
+        if(i<text.length){
+          el.append(text.charAt(i)); i++; setTimeout(type, 60 + Math.random()*80);
+        } else {
+          const cur = document.createElement('span');cur.className='cursor';el.appendChild(cur);
+        }
+      }
+      setTimeout(type,600);
+    })();
+
+    // Make it interactive: click card to show small toast
+    document.querySelector('.card').addEventListener('click',()=>{
+      const t = document.createElement('div');
+      t.textContent = 'I hacked NASA';
+      Object.assign(t.style,{position:'fixed',bottom:'28px',left:'28px',padding:'12px 16px',background:'rgba(0,0,0,0.6)',border:'1px solid rgba(0,255,170,0.08)',borderRadius:'8px',zIndex:9999});
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(),2200);
+    });
+
+    // keep matrix columns responsive
+    window.addEventListener('resize',()=>{matrix.innerHTML='';const newCols = Math.floor(window.innerWidth/14);for(let i=0;i<newCols;i++){const el=document.createElement('div');el.className='col';el.style.left=(i*14)+'px';el.style.opacity=(Math.random()*0.12+0.02).toFixed(2);el.style.fontSize=(8+Math.random()*10)+'px';el.dataset.speed=1+Math.random()*2;matrix.appendChild(el);} })
+  </script>
+</body>
+</html>
